@@ -3,175 +3,287 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AquaGuard</title>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&display=swap" rel="stylesheet">
+<title>AquaGuard | Hidden leak sentinel</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#eef2f1;--panel:#fbfdfc;--ink:#14313a;--mute:#5d7479;--line:#cddad8;--ok:#1f7a80;--warn:#c98a12;--bad:#b8532a}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1e23;--panel:#162a31;--ink:#dce8e8;--mute:#8fa8ac;--line:#294048;--ok:#4cc0c7;--warn:#e3a92f;--bad:#e8825a}}
+:root{--bg:#04161f;--card:rgba(255,255,255,.06);--line:rgba(255,255,255,.13);--txt:#e9f7f9;--mute:#8db3bb;--aqua:#35d0e0;--ok:#3be0a0;--warn:#ffc24b;--bad:#ff6b5b;--st:var(--ok)}
+body.SUSPECT{--st:var(--warn)}body.LEAK,body.BURST{--st:var(--bad)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Figtree,system-ui,sans-serif}
-main{max-width:1100px;margin:0 auto;padding:20px}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-h1{font-size:1.5rem;font-weight:800;margin:0}
-#conn{font-size:.9rem;color:var(--mute)}
-#banner{margin:16px 0;padding:16px 20px;border-left:8px solid var(--ok);background:var(--panel);font-size:1.25rem;font-weight:600}
-#banner small{display:block;font-weight:400;font-size:.95rem;color:var(--mute)}
-#banner.SUSPECT{border-color:var(--warn)}
-#banner.LEAK,#banner.BURST{border-color:var(--bad)}
-.grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
-@media(max-width:800px){.grid{grid-template-columns:1fr}}
-.panel{background:var(--panel);border:1px solid var(--line);padding:16px;min-width:0}
-h2{font-size:1rem;margin:0 0 10px;font-weight:600;color:var(--mute)}
-.nums{display:flex;gap:24px;flex-wrap:wrap;margin-top:8px}
-.nums b{display:block;font-size:1.8rem;font-weight:800;line-height:1.1}
-.nums span{font-size:.85rem;color:var(--mute)}
-svg{width:100%;height:auto;display:block}
-.pipe{stroke:var(--ok);stroke-width:14;fill:none}
-.water{stroke:var(--bg);stroke-width:4;fill:none;stroke-dasharray:10 14;animation:run 1s linear infinite;animation-duration:var(--spd,0s)}
-@keyframes run{to{stroke-dashoffset:-24}}
+body{margin:0;min-height:100vh;color:var(--txt);font:400 16px/1.5 Outfit,system-ui,sans-serif;background:radial-gradient(900px 500px at 85% -10%,#0f5d73,transparent 60%),radial-gradient(700px 500px at -10% 105%,#0b3f5c,transparent 55%),var(--bg);background-attachment:fixed}
+main{max-width:1080px;margin:0 auto;padding:18px}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.6rem;font-weight:800;letter-spacing:-.5px;margin-right:auto}
+.pill{font-size:.82rem;padding:5px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--mute)}
+.pill::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mute);margin-right:7px}
+.pill.ok::before{background:var(--ok);box-shadow:0 0 8px var(--ok)}.pill.wait::before{background:var(--warn)}.pill.bad::before{background:var(--bad)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;margin-bottom:16px;min-width:0}
+h2{font-size:.85rem;font-weight:500;color:var(--mute);margin:0 0 10px;text-transform:uppercase;letter-spacing:1.5px}
+#demoBar{background:linear-gradient(90deg,#7a4dff,#35d0e0);color:#04161f;font-weight:700;text-align:center;padding:8px;border-radius:14px;margin-bottom:14px}
+.hero{display:grid;grid-template-columns:230px 1fr;gap:24px;align-items:center;border-color:color-mix(in srgb,var(--st) 55%,transparent);box-shadow:0 0 40px -12px var(--st)}
+@media(max-width:700px){.hero{grid-template-columns:1fr;text-align:center;justify-items:center}}
+.orb{position:relative;width:210px;height:210px}
+.orb svg{width:100%;height:100%;transform:rotate(-90deg)}
+.orb .mid{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.orb b{font-size:3rem;font-weight:800;line-height:1}.orb span{font-size:.8rem;color:var(--mute)}
+.trk{fill:none;stroke:rgba(255,255,255,.1);stroke-width:10}
+.prg{fill:none;stroke:var(--st);stroke-width:10;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset .6s,stroke .4s}
+#bmain{font-size:1.9rem;font-weight:800;line-height:1.15;margin:0 0 6px;color:var(--st)}
+#bsub{margin:0 0 16px;color:var(--mute)}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+button{font:inherit;font-weight:700;padding:10px 18px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--txt);cursor:pointer;transition:transform .15s,background .2s}
+button:hover{transform:translateY(-2px);background:rgba(255,255,255,.12)}
+button:focus-visible,summary:focus-visible{outline:3px solid var(--aqua);outline-offset:2px}
+button.go{background:var(--aqua);color:#04161f;border-color:var(--aqua)}
+button.stop{border-color:var(--bad);color:var(--bad)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0 16px}
+@media(max-width:700px){.steps{grid-template-columns:1fr}}
+.step{padding:14px;border-radius:16px;background:rgba(255,255,255,.05);border:1px dashed var(--line)}
+.step i{font-style:normal;display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--aqua);color:#04161f;font-weight:800;margin-bottom:6px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:800px){.three{grid-template-columns:1fr}}
+.g{display:flex;align-items:center;gap:16px}
+.g svg{width:96px;height:96px;transform:rotate(-90deg);flex:none}
+.g .prg{stroke:var(--aqua);stroke-width:9}.g .trk{stroke-width:9}
+.big{font-size:2.2rem;font-weight:800;line-height:1}.unit{font-size:.85rem;color:var(--mute)}
+.pipe{stroke:#1d7d8f;stroke-width:16;fill:none;stroke-linecap:round}
+.water{stroke:#8ff3ff;stroke-width:5;fill:none;stroke-dasharray:3 22;stroke-linecap:round;animation:run 1s linear infinite;animation-duration:var(--spd,1s)}
+@keyframes run{to{stroke-dashoffset:-25}}
 @media(prefers-reduced-motion:reduce){.water{animation:none}}
-#valve{transition:transform .3s;transform-origin:300px 70px}
-button{font:inherit;font-weight:600;padding:8px 14px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
-button:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
-button.primary{background:var(--ink);color:var(--bg)}
-.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-#log{list-style:none;margin:0;padding:0;max-height:300px;overflow:auto;font-size:.9rem}
-#log li{padding:6px 0;border-top:1px solid var(--line)}
-#log .t{color:var(--mute);margin-right:6px}
-#log .LEAK,#log .BURST,#log .SHUTOFF{color:var(--bad);font-weight:600}
-#log .SUSPECT{color:var(--warn);font-weight:600}
-label{font-size:.85rem;color:var(--mute)}
-input{font:inherit;width:100%;padding:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+#valveG{transition:transform .4s;transform-box:fill-box;transform-origin:center}
+#log{list-style:none;margin:0;padding:0;max-height:280px;overflow:auto}
+#log li{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:.93rem}
+#log li::before{content:"";flex:none;width:10px;height:10px;margin-top:7px;border-radius:50%;background:var(--aqua)}
+#log li.SUSPECT::before{background:var(--warn)}#log li.LEAK::before,#log li.BURST::before,#log li.SHUTOFF::before{background:var(--bad)}
+#log .t{color:var(--mute);flex:none}
+#hint{background:rgba(255,107,91,.12);border:1px solid var(--bad);border-radius:14px;padding:12px 16px;margin-bottom:16px}
+details{margin-top:6px;color:var(--mute)}summary{cursor:pointer;padding:6px 0}
+input{font:inherit;width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--txt)}
+[hidden]{display:none!important}
+
+/* ---------- cinematic intro: camera follows a drop into the water ---------- */
+#intro{position:fixed;inset:0;z-index:1000;overflow:hidden;background:#04161f}
+#intro.out{opacity:0;transition:opacity 1s ease;pointer-events:none}
+#intro .world{position:absolute;left:0;top:0;width:100%;height:400vh;animation:cam 6.4s both}
+@keyframes cam{
+ 0%{transform:translateY(0);animation-timing-function:cubic-bezier(.55,0,.85,.55)}
+ 36%{transform:translateY(calc(-70vh + 64px));animation-timing-function:cubic-bezier(.2,.5,.3,1)}
+ 100%{transform:translateY(-285vh)}}
+#intro .sky{position:absolute;left:0;top:0;width:100%;height:120vh;background:
+ radial-gradient(1.5px 1.5px at 12% 14%,#fff9,transparent),radial-gradient(1.5px 1.5px at 78% 9%,#fff9,transparent),
+ radial-gradient(1px 1px at 55% 24%,#fff8,transparent),radial-gradient(1.5px 1.5px at 90% 40%,#fff8,transparent),
+ radial-gradient(1px 1px at 30% 48%,#fff7,transparent),linear-gradient(#050f17,#0b3446 70%,#1a6a80)}
+#intro .tag{position:absolute;left:0;width:100%;top:28vh;text-align:center;font-size:clamp(1rem,3.4vw,1.6rem);font-weight:300;letter-spacing:6px;text-transform:uppercase;color:#bfeff5;opacity:0;animation:fadein 1s .3s both}
+#intro .water{position:absolute;left:0;top:120vh;width:100%;height:280vh;background:linear-gradient(#2aa5bb 0,#0f6a82 8%,#08394b 35%,#04161f 100%)}
+#intro .surf{position:absolute;left:0;top:calc(120vh - 20px);width:200%;height:40px;animation:wave 3.5s linear infinite}
+@keyframes wave{to{transform:translateX(-50%)}}
+#intro .rays{position:absolute;left:0;top:120vh;width:100%;height:100vh;background:repeating-linear-gradient(100deg,transparent 0 70px,rgba(143,243,255,.13) 70px 110px,transparent 110px 200px);-webkit-mask-image:linear-gradient(#000,transparent);mask-image:linear-gradient(#000,transparent)}
+#intro .rip{position:absolute;left:50%;top:120vh;width:24vw;height:3.4vw;margin:-1.7vw 0 0 -12vw;border:2px solid rgba(180,250,255,.85);border-radius:50%;opacity:0;animation:ripple 2s ease-out both}
+#intro .rip:nth-of-type(1){animation-delay:2.3s}#intro .rip:nth-of-type(2){animation-delay:2.55s}#intro .rip:nth-of-type(3){animation-delay:2.8s}
+@keyframes ripple{0%{transform:scale(.05);opacity:.95}100%{transform:scale(3.4);opacity:0}}
+#intro .sp{position:absolute;left:50%;top:120vh;width:7px;height:7px;margin:-7px 0 0 -3px;border-radius:50%;background:#bff6ff;opacity:0;animation:splash .95s ease-out 2.3s both}
+@keyframes splash{0%{transform:translate(0,0);opacity:1}45%{transform:translate(calc(var(--dx)*.7),calc(var(--dy)*-1));opacity:1}100%{transform:translate(var(--dx),18px);opacity:0}}
+#intro .bub{position:absolute;border-radius:50%;border:1.5px solid rgba(190,250,255,.5);background:rgba(190,250,255,.08);animation:float 5s linear infinite}
+@keyframes float{from{transform:translateY(0);opacity:0}15%{opacity:.9}to{transform:translateY(-45vh);opacity:0}}
+#intro .drop{position:absolute;left:50%;top:50vh;width:56px;height:64px;transform:translateX(-50%);transform-origin:50% 100%;animation:dropk 6.4s both;filter:drop-shadow(0 0 14px rgba(53,208,224,.7))}
+@keyframes dropk{0%,34%{transform:translateX(-50%) scale(.9,1.18);opacity:1}
+ 37%{transform:translateX(-50%) scale(1.55,.5);opacity:1}46%{transform:translateX(-50%) scale(.5);opacity:.55}56%,100%{transform:translateX(-50%) scale(.1);opacity:0}}
+#intro .trail{position:absolute;left:50%;top:calc(50vh - 24vh);width:3px;height:24vh;margin-left:-1.5px;background:linear-gradient(transparent,#8ff3ff);border-radius:3px;opacity:0;animation:trail 6.4s both}
+@keyframes trail{0%{opacity:0}12%,30%{opacity:.75}36%,100%{opacity:0}}
+#intro .ititle{position:absolute;inset:0;display:grid;place-content:center;text-align:center;opacity:0;animation:fadein 1.2s 3.9s both;text-shadow:0 0 34px rgba(53,208,224,.7)}
+#intro h1{margin:0;font-size:clamp(2.6rem,10vw,5.2rem);font-weight:800;letter-spacing:-1px}
+#intro .ititle p{margin:6px 0 0;color:#8ff3ff;letter-spacing:5px;text-transform:uppercase;font-size:.95rem}
+@keyframes fadein{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+#skipIntro{position:absolute;right:18px;bottom:18px;z-index:2;background:rgba(255,255,255,.1);padding:8px 16px;font-size:.85rem}
+@keyframes rise{from{opacity:0;transform:translateY(28px) scale(.98)}to{opacity:1;transform:none}}
+body.rev main>*{animation:rise .85s cubic-bezier(.2,.7,.2,1) both}
+body.rev main>*:nth-child(4){animation-delay:.1s}body.rev main>*:nth-child(5){animation-delay:.18s}body.rev main>*:nth-child(6){animation-delay:.26s}
+body.rev main>*:nth-child(7){animation-delay:.34s}body.rev main>*:nth-child(8){animation-delay:.42s}body.rev main>*:nth-child(9){animation-delay:.5s}
+
+.tourbtn{padding:5px 14px;border-radius:99px;font-size:.82rem;font-weight:500;color:var(--aqua);border-color:var(--aqua);background:transparent}
+#tour{position:fixed;inset:0;z-index:900}
+#spot{position:fixed;border-radius:18px;pointer-events:none;transition:all .35s ease;box-shadow:0 0 0 9999px rgba(2,10,16,.8),0 0 0 3px var(--aqua),0 0 30px 6px rgba(53,208,224,.65);animation:glow 1.2s ease-in-out infinite alternate}
+@keyframes glow{from{box-shadow:0 0 0 9999px rgba(2,10,16,.8),0 0 0 3px var(--aqua),0 0 14px 2px rgba(53,208,224,.4)}to{box-shadow:0 0 0 9999px rgba(2,10,16,.8),0 0 0 3px var(--aqua),0 0 38px 10px rgba(53,208,224,.8)}}
+#tip{position:fixed;width:min(330px,calc(100vw - 24px));background:#0b2b38;border:1px solid var(--aqua);border-radius:18px;padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,.5);transition:top .35s ease,left .35s ease}
+#tip b{font-size:1.1rem;color:var(--aqua)}#tip p{margin:4px 0 12px;color:var(--txt);font-size:.95rem}
+.tnav{display:flex;align-items:center;gap:8px}.tnav .cnt{margin-right:auto;font-size:.8rem;color:var(--mute)}
+.tnav button{padding:7px 14px;font-size:.88rem}
+@media(prefers-reduced-motion:reduce){#spot{animation:none;transition:none}#tip{transition:none}}
 </style>
 </head>
-<body>
-<main>
-<header>
-  <h1>AquaGuard</h1>
-  <div id="conn" role="status">Connecting…</div>
-</header>
-
-<div id="banner" class="NORMAL"><span id="bmain">Waiting for the sensor…</span><small id="bsub"></small></div>
-
-<div class="grid">
-  <section class="panel">
-    <h2>Main line</h2>
-    <svg viewBox="0 0 600 140" role="img" aria-label="Water main, shut-off valve and house">
-      <path class="pipe" d="M20 70H580"/>
-      <path class="water" id="water" d="M20 70H580"/>
-      <g id="valve">
-        <rect x="270" y="40" width="60" height="60" fill="var(--panel)" stroke="var(--ink)" stroke-width="3"/>
-        <line id="vbar" x1="300" y1="48" x2="300" y2="92" stroke="var(--bad)" stroke-width="8" opacity="0"/>
-      </g>
-      <text x="20" y="125" fill="var(--mute)" font-size="14">Street supply</text>
-      <text x="300" y="125" text-anchor="middle" fill="var(--mute)" font-size="14" id="vlabel">Valve open</text>
-      <text x="580" y="125" text-anchor="end" fill="var(--mute)" font-size="14">House</text>
-    </svg>
-    <div class="nums">
-      <div><b id="flow">–</b><span>litres / min</span></div>
-      <div><b id="psi">–</b><span>psi</span></div>
-      <div><b id="score">–</b><span>leak confidence %</span></div>
-      <div><b id="lost">–</b><span>litres lost</span></div>
-    </div>
-    <canvas id="chart" height="150" style="margin-top:16px"></canvas>
-  </section>
-
-  <aside>
-    <section class="panel" style="margin-bottom:16px">
-      <h2>Controls</h2>
-      <div class="row">
-        <button id="bclose">Close valve</button>
-        <button id="breset" class="primary">Reopen and reset</button>
-      </div>
-      <div class="row"><button id="bnotify">Turn on alerts</button></div>
-      <label for="topic">Topic prefix (must match main.py)</label>
-      <input id="topic" value="aquaguard-mlh-CHANGE-ME/home01">
-    </section>
-    <section class="panel">
-      <h2>Events</h2>
-      <ul id="log"><li>No events yet. Turn the flow dial to a low, steady value to simulate a leak.</li></ul>
-    </section>
-  </aside>
+<body class="NORMAL">
+<div id="intro" aria-hidden="true">
+  <div class="world">
+    <div class="sky"></div>
+    <div class="tag">One drop at a time</div>
+    <div class="water"></div>
+    <div class="rays"></div>
+    <svg class="surf" viewBox="0 0 2400 40" preserveAspectRatio="none"><path d="M0 20Q150 0 300 20T600 20T900 20T1200 20T1500 20T1800 20T2100 20T2400 20V40H0Z" fill="rgba(170,248,255,.55)"/></svg>
+    <i class="rip"></i><i class="rip"></i><i class="rip"></i>
+    <i class="sp" style="--dx:-90px;--dy:70px"></i><i class="sp" style="--dx:-45px;--dy:110px"></i><i class="sp" style="--dx:-15px;--dy:130px"></i>
+    <i class="sp" style="--dx:20px;--dy:125px"></i><i class="sp" style="--dx:55px;--dy:105px"></i><i class="sp" style="--dx:95px;--dy:65px"></i>
+  </div>
+  <div class="trail"></div>
+  <svg class="drop" viewBox="0 0 32 36"><defs><linearGradient id="dg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bff6ff"/><stop offset="1" stop-color="#1fb5cc"/></linearGradient></defs>
+    <path d="M16 1C16 1 4 15 4 23a12 12 0 0024 0C28 15 16 1 16 1z" fill="url(#dg)"/><path d="M10 23a6 6 0 004 5.6" stroke="#fff" stroke-opacity=".8" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+  <div class="ititle"><h1>AquaGuard</h1><p>Hidden leak sentinel</p></div>
+  <button id="skipIntro">Skip intro</button>
 </div>
+<script>try{if(sessionStorage.getItem("aqIntro")||matchMedia("(prefers-reduced-motion:reduce)").matches)document.getElementById("intro").remove()}catch(e){}
+(function(){const w=document.querySelector("#intro .world");if(!w)return;for(let i=0;i<16;i++){const b=document.createElement("b");b.className="bub";const z=4+Math.random()*12;b.style.cssText="left:"+Math.random()*100+"%;top:"+(130+Math.random()*230)+"vh;width:"+z+"px;height:"+z+"px;animation-delay:"+(-Math.random()*5)+"s;animation-duration:"+(4+Math.random()*4)+"s";w.appendChild(b)}})();</script>
+<main>
+<div class="top">
+  <div class="logo">
+    <svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2C16 2 5 14 5 21a11 11 0 0022 0C27 14 16 2 16 2z" fill="#35d0e0"/><path d="M12 21a4 4 0 004 4" stroke="#04161f" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
+    AquaGuard
+  </div>
+  <span class="pill wait" id="pBroker" role="status">Broker: connecting</span>
+  <span class="pill wait" id="pSensor" role="status">Sensor: waiting</span>
+  <button id="btour" class="tourbtn">? Quick tour</button>
+</div>
+
+<div id="demoBar" hidden>DEMO MODE: simulated data, not from the ESP32 &nbsp; <button class="stop" id="bstopdemo" style="padding:4px 12px">Exit demo</button></div>
+<div id="hint" hidden><b>Can't reach the broker yet.</b> Check your internet, turn off ad-blockers for this page, and try Chrome or Edge. Some school or office networks block port 8884.</div>
+
+<section class="card hero">
+  <div class="orb">
+    <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="prg" id="rOrb" cx="50" cy="50" r="42" pathLength="100"/></svg>
+    <div class="mid"><b id="score">0</b><span>leak confidence %</span></div>
+  </div>
+  <div>
+    <p id="bmain">All quiet. No leaks.</p>
+    <p id="bsub">AquaGuard watches your water line for slow, steady trickles that normal use never causes.</p>
+    <div class="btns">
+      <button id="bclose">Close valve</button>
+      <button id="breset" class="go">Reopen and reset</button>
+      <button id="bnotify">Turn on alerts</button>
+    </div>
+  </div>
+</section>
+
+<section class="card" id="welcome">
+  <h2>New here? Start in 3 steps</h2>
+  <div class="steps">
+    <div class="step"><i>1</i><br><b>Start the sensor</b><br><span class="unit">Open the Wokwi project and press Play until the console says MQTT OK.</span></div>
+    <div class="step"><i>2</i><br><b>Match the topic</b><br><span class="unit">The topic in Settings below must equal BASE in main.py.</span></div>
+    <div class="step"><i>3</i><br><b>Fake a leak</b><br><span class="unit">Hold the flow dial at about 15% and watch AquaGuard react.</span></div>
+  </div>
+  <div class="btns"><button class="go" id="bdemo">Watch a 30 second demo</button><span class="unit" style="align-self:center">No hardware needed. The demo uses simulated data.</span></div>
+</section>
+
+<div class="three">
+  <section class="card" id="cFlow"><h2>Flow</h2><div class="g">
+    <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="prg" id="rFlow" cx="50" cy="50" r="42" pathLength="100"/></svg>
+    <div><div class="big" id="flow">0.00</div><div class="unit">litres / minute</div></div></div></section>
+  <section class="card" id="cPsi"><h2>Pressure</h2><div class="g">
+    <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="prg" id="rPsi" cx="50" cy="50" r="42" pathLength="100"/></svg>
+    <div><div class="big" id="psi">0.0</div><div class="unit">psi</div></div></div></section>
+  <section class="card" id="cLost"><h2>Water lost</h2>
+    <div class="big" id="lost">0.00</div><div class="unit">litres since the leak began</div>
+    <div class="unit" style="margin-top:8px">Main valve: <b id="vtxt" style="color:var(--ok)">OPEN</b></div></section>
+</div>
+
+<section class="card" id="cLine"><h2>Main line</h2>
+  <svg viewBox="0 0 640 140" style="width:100%;height:auto" role="img" aria-label="Water main with shut-off valve">
+    <path class="pipe" d="M30 70H610"/><path class="water" id="water" d="M30 70H610" style="opacity:0"/>
+    <g id="valveG"><rect x="290" y="38" width="60" height="64" rx="12" fill="#0a2b38" stroke="#35d0e0" stroke-width="3"/>
+      <line id="vbar" x1="320" y1="46" x2="320" y2="94" stroke="#ff6b5b" stroke-width="9" stroke-linecap="round" opacity="0"/></g>
+    <text x="30" y="128" fill="#8db3bb" font-size="14">Street supply</text>
+    <text x="320" y="128" fill="#8db3bb" font-size="14" text-anchor="middle" id="vlabel">Valve open</text>
+    <text x="610" y="128" fill="#8db3bb" font-size="14" text-anchor="end">Your home</text>
+  </svg></section>
+
+<section class="card" id="cChart"><h2>Last few minutes</h2><canvas id="chart" height="130"></canvas></section>
+<section class="card" id="cEvents"><h2>Events</h2><ul id="log"><li>Nothing yet. Events appear here the moment AquaGuard notices something.</li></ul>
+  <details><summary>Settings</summary>
+    <label for="topic" class="unit">Topic prefix (must match BASE in main.py)</label>
+    <input id="topic" autocomplete="off">
+    <p class="unit">Broker: broker.hivemq.com (public, over secure WebSockets).</p><button id="replay">Replay intro</button></details></section>
 </main>
 
+<div id="tour" hidden role="dialog" aria-label="Quick tour">
+  <div id="spot"></div>
+  <div id="tip"><b id="tt"></b><p id="tb"></p>
+    <div class="tnav"><span class="cnt" id="tc"></span><button id="tskip">Skip</button><button id="tback">Back</button><button id="tnext" class="go">Next</button></div></div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const BROKER = "wss://broker.hivemq.com:8884/mqtt";
-let client, base;
-try { const s = localStorage.getItem("aqTopic"); if (s) $("topic").value = s; } catch (e) {}
+const DEFAULT_TOPIC = "aquaguard-mlh-x7k2q9/home01";
+let client, base, demo = null, lastSeen = 0;
+try { const s = localStorage.getItem("aqTopic2"); $("topic").value = s || DEFAULT_TOPIC; } catch (e) { $("topic").value = DEFAULT_TOPIC; }
 
 const MSG = {
-  NORMAL:  ["Water use looks normal", "No continuous low flow detected."],
-  SUSPECT: ["Possible hidden leak", "Water has been trickling without a pause. Checking if it continues."],
-  LEAK:    ["Leak confirmed: main valve closed", "Steady low flow never stopped. Water supply was shut off automatically."],
-  BURST:   ["Burst pipe: main valve closed", "Very high flow with a pressure collapse. Supply shut off immediately."]
+  NORMAL:  ["All quiet. No leaks.", "Water use looks normal. Taps open and close as expected."],
+  SUSPECT: ["Possible hidden leak", "Water has been trickling without a single pause. Watching closely."],
+  LEAK:    ["Leak confirmed. Water shut off.", "A steady trickle never stopped, so the main valve was closed automatically."],
+  BURST:   ["Burst pipe! Water shut off.", "Huge flow and a pressure collapse. The main valve closed at once."]
 };
+const setPill = (id, cls, txt) => { const e = $(id); e.className = "pill " + cls; e.textContent = txt; };
+const ring = (id, f) => $(id).style.strokeDashoffset = 100 - Math.max(0, Math.min(1, f)) * 100;
 
 const chart = new Chart($("chart"), {
   type: "line",
   data: { labels: [], datasets: [
-    { label: "Flow (L/min)", data: [], borderColor: "#1f7a80", pointRadius: 0, tension: .2, yAxisID: "y" },
-    { label: "Pressure (psi)", data: [], borderColor: "#b8532a", pointRadius: 0, tension: .2, yAxisID: "y1" }
+    { label: "Flow (L/min)", data: [], borderColor: "#35d0e0", backgroundColor: "rgba(53,208,224,.15)", fill: true, pointRadius: 0, tension: .3, yAxisID: "y" },
+    { label: "Pressure (psi)", data: [], borderColor: "#ffc24b", pointRadius: 0, tension: .3, yAxisID: "y1" }
   ]},
-  options: { animation: false, responsive: true, scales: {
-    x: { display: false },
-    y: { min: 0, suggestedMax: 5, title: { display: true, text: "L/min" } },
-    y1: { position: "right", min: 0, max: 100, grid: { drawOnChartArea: false }, title: { display: true, text: "psi" } }
-  }}
+  options: { animation: false, responsive: true, plugins: { legend: { labels: { color: "#8db3bb" } } },
+    scales: { x: { display: false },
+      y: { min: 0, suggestedMax: 5, ticks: { color: "#8db3bb" }, grid: { color: "rgba(255,255,255,.07)" } },
+      y1: { position: "right", min: 0, max: 100, ticks: { color: "#8db3bb" }, grid: { drawOnChartArea: false } } } }
 });
 
 function connect() {
   base = $("topic").value.trim();
-  try { localStorage.setItem("aqTopic", base); } catch (e) {}
+  try { localStorage.setItem("aqTopic2", base); } catch (e) {}
   if (client) client.end(true);
-  client = mqtt.connect(BROKER, { reconnectPeriod: 3000 });
-  client.on("connect", () => {
-    $("conn").textContent = "Connected to broker";
-    client.subscribe([base + "/telemetry", base + "/event"]);
-  });
-  client.on("reconnect", () => $("conn").textContent = "Reconnecting…");
-  client.on("offline", () => $("conn").textContent = "Offline");
-  client.on("message", (t, p) => {
+  setPill("pBroker", "wait", "Broker: connecting");
+  const c = client = mqtt.connect(BROKER, { reconnectPeriod: 3000, connectTimeout: 8000 });
+  c.on("connect", () => { setPill("pBroker", "ok", "Broker: connected"); $("hint").hidden = true; c.subscribe([base + "/telemetry", base + "/event"]); });
+  c.on("reconnect", () => setPill("pBroker", "wait", "Broker: reconnecting"));
+  c.on("offline", () => setPill("pBroker", "bad", "Broker: offline"));
+  c.on("error", () => setPill("pBroker", "bad", "Broker: error"));
+  c.on("message", (t, p) => {
+    if (demo) return;
     let d; try { d = JSON.parse(p.toString()); } catch (e) { return; }
     t.endsWith("/telemetry") ? onTelemetry(d) : onEvent(d);
   });
+  setTimeout(() => { if (!c.connected) $("hint").hidden = false; }, 10000);
 }
 
-let lastState = "NORMAL", lastSeen = 0;
 function onTelemetry(d) {
   lastSeen = Date.now();
+  $("welcome").hidden = true;
+  document.body.className = d.state;
   $("flow").textContent = d.flow.toFixed(2);
   $("psi").textContent = d.psi.toFixed(1);
   $("score").textContent = d.score;
   $("lost").textContent = d.lost_l.toFixed(2);
+  ring("rFlow", Math.sqrt(d.flow / 15)); ring("rPsi", d.psi / 100); ring("rOrb", d.score / 100);
   const closed = d.valve === "CLOSED";
+  $("vtxt").textContent = d.valve; $("vtxt").style.color = closed ? "var(--bad)" : "var(--ok)";
   $("vbar").setAttribute("opacity", closed ? 1 : 0);
   $("vlabel").textContent = closed ? "Valve closed" : "Valve open";
-  $("water").style.setProperty("--spd", d.flow > 0.02 ? Math.max(0.15, 1.6 / (1 + d.flow)) + "s" : "0s");
   $("water").style.opacity = d.flow > 0.02 ? 1 : 0;
+  $("water").style.setProperty("--spd", Math.max(0.2, 1.4 / (1 + d.flow)) + "s");
   const m = MSG[d.state] || MSG.NORMAL;
-  $("banner").className = d.state;
   $("bmain").textContent = m[0];
   $("bsub").textContent = d.state === "SUSPECT" ? m[1] + " (" + d.low_s + " s so far)" : m[1];
-  lastState = d.state;
-
   const c = chart.data;
   c.labels.push(d.up); c.datasets[0].data.push(d.flow); c.datasets[1].data.push(d.psi);
-  if (c.labels.length > 120) { c.labels.shift(); c.datasets.forEach(s => s.data.shift()); }
+  if (c.labels.length > 90) { c.labels.shift(); c.datasets.forEach(s => s.data.shift()); }
   chart.update();
 }
 
 function onEvent(d) {
   const ul = $("log");
-  if (ul.firstChild && !ul.firstChild.dataset.ev) ul.innerHTML = "";
-  const li = document.createElement("li");
-  li.dataset.ev = 1; li.className = d.type;
+  if (!ul.firstChild.dataset || !ul.firstChild.dataset.ev) ul.innerHTML = "";
+  const li = document.createElement("li"); li.dataset.ev = 1; li.className = d.type;
   const t = document.createElement("span"); t.className = "t"; t.textContent = new Date().toLocaleTimeString();
-  li.append(t, d.type + ": " + (d.msg || ""));
-  ul.prepend(li);
+  const m = document.createElement("span"); m.textContent = d.type + ": " + (d.msg || "");
+  li.append(t, m); ul.prepend(li);
   if (["SUSPECT", "LEAK", "BURST", "SHUTOFF"].includes(d.type)) alertUser(d);
 }
 
@@ -185,20 +297,117 @@ function beep(n) {
     const ac = new (window.AudioContext || window.webkitAudioContext)();
     for (let i = 0; i < n; i++) {
       const o = ac.createOscillator(), g = ac.createGain();
-      o.frequency.value = 880; g.gain.value = 0.1;
-      o.connect(g); g.connect(ac.destination);
+      o.frequency.value = 880; g.gain.value = 0.08; o.connect(g); g.connect(ac.destination);
       o.start(ac.currentTime + i * 0.35); o.stop(ac.currentTime + i * 0.35 + 0.2);
     }
   } catch (e) {}
 }
 
-const cmd = c => client && client.publish(base + "/cmd", c);
+/* ---------- demo mode (clearly simulated, no hardware) ---------- */
+function startDemo() {
+  stopDemo(true);
+  chart.data.labels = []; chart.data.datasets.forEach(s => s.data = []);
+  demo = { t: 0, low: 0, state: "NORMAL", valve: "OPEN", lost: 0, latched: false, timer: null };
+  $("demoBar").hidden = false;
+  demo.timer = setInterval(demoTick, 1000);
+}
+function stopDemo(silent) {
+  if (!demo) return;
+  clearInterval(demo.timer); demo = null; $("demoBar").hidden = true;
+  if (!silent) { document.body.className = "NORMAL"; $("welcome").hidden = false; }
+}
+function demoTick() {
+  const D = demo; D.t++;
+  let flow = 0;
+  if (!D.latched) { if (D.t >= 3 && D.t <= 5) flow = 3.5 + Math.random() * .4; else if (D.t >= 7) flow = 0.3 + Math.random() * .02; }
+  const inBand = flow > 0.05 && flow < 1.5;
+  D.low = inBand ? D.low + 1 : 0;
+  let st = D.latched ? D.state : (D.low >= 16 ? "LEAK" : D.low >= 8 ? "SUSPECT" : "NORMAL");
+  if (st !== D.state) {
+    onEvent({ type: st, msg: "State changed to " + st + " (demo)" });
+    if (st === "LEAK") { D.latched = true; D.valve = "CLOSED"; onEvent({ type: "SHUTOFF", msg: "Main valve closed automatically (demo)" }); }
+    D.state = st;
+  }
+  if (st === "SUSPECT" || st === "LEAK") D.lost += flow / 60;
+  onTelemetry({ up: D.t, flow, psi: 55 - (inBand ? 4 : 0) + Math.random() * .6, state: st,
+    score: Math.round(Math.min(D.low / 16, 1) * 70 + (inBand ? 30 : 0)), valve: D.valve, lost_l: D.lost, low_s: D.low });
+}
+
+const cmd = c => {
+  if (demo) {
+    if (c === "close") { demo.latched = true; demo.valve = "CLOSED"; onEvent({ type: "MANUAL", msg: "Valve closed (demo)" }); }
+    else { demo.latched = false; demo.valve = "OPEN"; demo.low = 0; demo.state = "NORMAL"; demo.t = 0; onEvent({ type: "RESET", msg: "Reset (demo)" }); }
+  } else if (client && client.connected) client.publish(base + "/cmd", c);
+};
 $("bclose").onclick = () => cmd("close");
 $("breset").onclick = () => cmd("reset");
-$("bnotify").onclick = () => { if ("Notification" in window) Notification.requestPermission().then(p => $("bnotify").textContent = p === "granted" ? "Alerts on" : "Alerts blocked"); beep(1); };
+$("bdemo").onclick = startDemo;
+$("bstopdemo").onclick = () => stopDemo(false);
+$("bnotify").onclick = () => { beep(1); if ("Notification" in window) Notification.requestPermission().then(p => $("bnotify").textContent = p === "granted" ? "Alerts on" : "Alerts blocked"); };
 $("topic").onchange = connect;
 
-setInterval(() => { if (lastSeen && Date.now() - lastSeen > 5000) { $("bmain").textContent = "No data from the sensor"; $("bsub").textContent = "Check that the Wokwi simulation is running."; $("banner").className = "SUSPECT"; } }, 2000);
+setInterval(() => {
+  if (demo) { setPill("pSensor", "wait", "Sensor: demo"); return; }
+  const live = lastSeen && Date.now() - lastSeen < 4500;
+  setPill("pSensor", live ? "ok" : (lastSeen ? "bad" : "wait"), live ? "Sensor: live" : (lastSeen ? "Sensor: no data" : "Sensor: waiting"));
+}, 1000);
+
+/* ---------- quick guided tour ---------- */
+const TOUR = [
+ {sel:".top",t:"Connection lights",b:"Broker means the internet link is up. Sensor turns green when live data arrives from the ESP32."},
+ {sel:".orb",t:"Leak confidence",b:"Climbs while water trickles without a pause. Green is safe, amber is suspicious, red means the water was shut off."},
+ {sel:"#bclose",t:"Close valve",b:"Shuts the main water off by hand, any time you like."},
+ {sel:"#breset",t:"Reopen and reset",b:"After you fix a leak, press this to turn the water back on."},
+ {sel:"#bnotify",t:"Alerts",b:"Allows pop-ups and a beep the moment something looks wrong."},
+ {sel:"#cFlow",t:"Flow",b:"Litres per minute. A hidden leak is small, steady, and never drops to zero."},
+ {sel:"#cPsi",t:"Pressure",b:"A small drop supports a leak diagnosis. A sudden collapse means a burst."},
+ {sel:"#cLost",t:"Water lost",b:"How much has escaped, and whether the main valve is open or closed."},
+ {sel:"#cLine",t:"Live pipe",b:"Water moves along the pipe when it flows. The valve turns red when it closes."},
+ {sel:"#cChart",t:"Trend chart",b:"Flow and pressure over the last minutes. A low line that never touches zero is a leak."},
+ {sel:"#cEvents",t:"Event log",b:"Every warning and shut-off is listed here with its time."},
+ {sel:"#bdemo",t:"No hardware?",b:"Press this for a 30 second simulated leak demo."}
+];
+let tsteps = [], ti = 0;
+function startTour() {
+  tsteps = TOUR.filter(s => { const e = document.querySelector(s.sel); return e && e.offsetParent !== null; });
+  if (!tsteps.length) return;
+  ti = 0; $("tour").hidden = false; showStep();
+}
+function showStep() {
+  const s = tsteps[ti], el = document.querySelector(s.sel);
+  el.scrollIntoView({ block: "center" });
+  $("tt").textContent = s.t; $("tb").textContent = s.b;
+  $("tc").textContent = (ti + 1) + " / " + tsteps.length;
+  $("tback").style.visibility = ti ? "visible" : "hidden";
+  $("tnext").textContent = ti === tsteps.length - 1 ? "Done" : "Next";
+  requestAnimationFrame(placeTour);
+}
+function placeTour() {
+  if ($("tour").hidden) return;
+  const el = document.querySelector(tsteps[ti].sel), r = el.getBoundingClientRect(), p = 8;
+  const sp = $("spot").style;
+  sp.left = r.left - p + "px"; sp.top = r.top - p + "px"; sp.width = r.width + 2 * p + "px"; sp.height = r.height + 2 * p + "px";
+  const tip = $("tip"), th = tip.offsetHeight, tw = tip.offsetWidth;
+  let top = r.bottom + p + 14;
+  if (top + th > innerHeight - 10) top = r.top - p - 14 - th;
+  if (top < 10) top = Math.max(10, innerHeight - th - 14);
+  tip.style.top = top + "px";
+  tip.style.left = Math.min(Math.max(12, r.left + r.width / 2 - tw / 2), innerWidth - tw - 12) + "px";
+}
+function endTour() { $("tour").hidden = true; try { localStorage.setItem("aqTour", "1"); } catch (e) {} }
+function maybeTour() { let seen = false; try { seen = localStorage.getItem("aqTour"); } catch (e) {} if (!seen && !demo) startTour(); }
+$("tnext").onclick = () => { if (ti >= tsteps.length - 1) endTour(); else { ti++; showStep(); } };
+$("tback").onclick = () => { if (ti) { ti--; showStep(); } };
+$("tskip").onclick = endTour;
+$("btour").onclick = startTour;
+addEventListener("resize", placeTour);
+addEventListener("scroll", placeTour, true);
+addEventListener("keydown", e => { if ($("tour").hidden) return; if (e.key === "Escape") endTour(); if (e.key === "ArrowRight") $("tnext").click(); if (e.key === "ArrowLeft") $("tback").click(); });
+
+function endIntro(){const el=$("intro");if(!el||el.classList.contains("out"))return;document.body.classList.add("rev");el.classList.add("out");setTimeout(()=>el.remove(),1000);try{sessionStorage.setItem("aqIntro","1")}catch(e){}setTimeout(maybeTour,1300)}
+if($("intro")){setTimeout(endIntro,5400);$("skipIntro").onclick=endIntro;addEventListener("keydown",e=>{if(e.key==="Escape")endIntro()});}
+else setTimeout(maybeTour,800);
+$("replay").onclick=()=>{try{sessionStorage.removeItem("aqIntro");localStorage.removeItem("aqTour")}catch(e){}location.reload()};
 connect();
 </script>
 </body>
