@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "author": "AquaGuard",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": { "env": "micropython-20231227-v1.22.0" } },
+    { "type": "wokwi-potentiometer", "id": "flow", "top": -130, "left": 150, "attrs": { "label": "Flow" } },
+    { "type": "wokwi-potentiometer", "id": "pres", "top": -130, "left": 280, "attrs": { "label": "Pressure" } },
+    { "type": "wokwi-relay-module", "id": "relay", "top": 230, "left": 150, "attrs": {} },
+    { "type": "wokwi-led", "id": "led", "top": 230, "left": -60, "attrs": { "color": "red" } },
+    { "type": "wokwi-buzzer", "id": "bz", "top": 230, "left": -140, "attrs": { "volume": "0.1" } },
+    { "type": "wokwi-pushbutton", "id": "btn", "top": 120, "left": -120, "attrs": { "color": "green", "label": "Reset" } }
+  ],
+  "connections": [
+    ["esp:TX", "$serialMonitor:RX", "", []],
+    ["esp:RX", "$serialMonitor:TX", "", []],
+
+    ["flow:VCC", "esp:3V3", "red", ["v0"]],
+    ["flow:GND", "esp:GND.1", "black", ["v0"]],
+    ["flow:SIG", "esp:34", "green", ["v0"]],
+
+    ["pres:VCC", "esp:3V3", "red", ["v0"]],
+    ["pres:GND", "esp:GND.1", "black", ["v0"]],
+    ["pres:SIG", "esp:35", "blue", ["v0"]],
+
+    ["relay:VCC", "esp:5V", "red", ["v0"]],
+    ["relay:GND", "esp:GND.1", "black", ["v0"]],
+    ["relay:IN", "esp:26", "orange", ["v0"]],
+
+    ["led:A", "esp:27", "red", ["v0"]],
+    ["led:C", "esp:GND.1", "black", ["v0"]],
+
+    ["bz:2", "esp:25", "purple", ["v0"]],
+    ["bz:1", "esp:GND.1", "black", ["v0"]],
+
+    ["btn:1.l", "esp:14", "green", ["v0"]],
+    ["btn:2.l", "esp:GND.1", "black", ["v0"]]
+  ],
+  "dependencies": {}
+}
